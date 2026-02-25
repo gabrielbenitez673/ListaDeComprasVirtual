@@ -6,6 +6,8 @@ class Product {
   final double price;
   final double
   descuentoSegundaUnidad; // descuento para la segunda unidad ej, 0 es sin descuento, 50 es 50% de descuento
+  bool
+  isPending; // para verificar si el producto esta en la lista de pendientes
 
   Product({
     required this.id,
@@ -13,6 +15,8 @@ class Product {
     required this.quantity,
     required this.price,
     this.descuentoSegundaUnidad = 0.0,
+    this.isPending =
+        true, // por defecto el producto se considera pendiente hasta que se confirme su compra
   });
 
   // vamos a convertir un objeto Product a un mapa (serializacion) para facilitar su almacenamiento si es necesario
@@ -24,6 +28,7 @@ class Product {
       'quantity': quantity,
       'price': price,
       'descuentoSegundaUnidad': descuentoSegundaUnidad,
+      'isPending': isPending, // Guardamos el estado de pendiente en el mapa
     };
   }
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shopping_list_app/constants/app_strings.dart';
 import 'package:shopping_list_app/themes/theme.dart';
 
 /*
@@ -26,7 +28,7 @@ class CartSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
       child: Container(
         //Estilizacion del panel inferior (sombra y bordes redondeados)
         padding: const EdgeInsets.all(16),
@@ -42,16 +44,28 @@ class CartSummary extends StatelessWidget {
               children: [
                 const Icon(Icons.percent, size: 20, color: Colors.blueGrey),
                 const SizedBox(width: 8),
-                const Text("Descuento Billetera Virtual"),
+                Text(
+                  AppStrings.etiquetaDescuento,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.textDark,
+                  ),
+                ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: SizedBox(
                     height: 40,
                     child: TextField(
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        hintText: "0",
+                      decoration: InputDecoration(
+                        hintStyle: GoogleFonts.montserrat(
+                          fontSize: 13,
+                          color: AppTheme.textLight,
+                        ),
+                        hintText: "1 al 100",
                         border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.all(8),
                       ),
                       //Importante, Al cambiar el texto, notificamos a la pantalla principal de esto.
                       onChanged: onDiscountChanged,
@@ -67,25 +81,84 @@ class CartSummary extends StatelessWidget {
             const SizedBox(height: 10),
 
             //El boton principal para agregar productos
-            SizedBox(
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton.icon(
-                onPressed: onAddProduct,
-                icon: const Icon(Icons.add_shopping_cart),
-                label: const Text(
-                  "Nuevo Producto",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryMint,
-                  foregroundColor: AppTheme.white,
-                  iconSize: 24,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 1),
+                    child: SizedBox(
+                      height: 55,
+                      child: ElevatedButton.icon(
+                        onPressed: onAddProduct,
+                        icon: const Icon(Icons.add_shopping_cart),
+                        label: Text(
+                          AppStrings.botonAgregarProducto,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryMint,
+                          foregroundColor: AppTheme.white,
+                          iconSize: 24,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: SizedBox(
+                      height: 55,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text(
+                                  AppStrings.seccionEnDesarrollo,
+                                ),
+                                content: const Text(
+                                  AppStrings.seccionEnDesarrolloMensaje,
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    child: const Text(AppStrings.botonCerrar),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        icon: const Icon(Icons.payment),
+                        label: Text(
+                          AppStrings.botonFinalizarCompra,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.accentCoral,
+                          foregroundColor: AppTheme.white,
+                          iconSize: 24,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -113,7 +186,7 @@ class _PriceRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: GoogleFonts.montserrat(
             fontSize: isTotal ? 18 : 14,
             fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
             color: isTotal ? null : AppTheme.textLight,
@@ -121,7 +194,7 @@ class _PriceRow extends StatelessWidget {
         ),
         Text(
           "\$${value.toStringAsFixed(2)}",
-          style: TextStyle(
+          style: GoogleFonts.montserrat(
             fontSize: isTotal ? 22 : 14,
             fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
             color: isTotal ? null : AppTheme.textLight,

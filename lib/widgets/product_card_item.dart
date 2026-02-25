@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shopping_list_app/themes/theme.dart';
 import 'package:shopping_list_app/models/product.dart';
 
@@ -26,12 +27,20 @@ class ProductCardItem extends StatelessWidget {
       child: ListTile(
         title: Text(
           product.title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         subtitle: Text(
           //logica del texto: Si tiene promo, muestra el porcentaje; sino solo cantidad y precio
           "Cant: ${product.quantity} - Precio: \$${product.price.toStringAsFixed(2)}"
           "${product.descuentoSegundaUnidad > 0 ? " (Promo 2da: ${product.descuentoSegundaUnidad.toStringAsFixed(0)}%)" : ""}",
+          style: GoogleFonts.montserrat(
+            fontSize: 14,
+            fontWeight: FontWeight.normal,
+            color: AppTheme.textLight,
+          ),
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,

@@ -1,5 +1,5 @@
 name: shopping_list_app
-description: "A new Flutter project."
+description: "Mi Changuito: Una aplicación de lista de compras virtual para organizar tus compras de manera eficiente."
 publish_to: 'none'
 version: 0.1.0
 
@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  google_fonts: ^8.0.1
   shared_preferences: ^2.5.4
 
 dev_dependencies:

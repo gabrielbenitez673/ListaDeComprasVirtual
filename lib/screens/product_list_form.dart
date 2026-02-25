@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shopping_list_app/constants/app_strings.dart';
 import 'package:shopping_list_app/models/product.dart';
 import 'package:shopping_list_app/themes/theme.dart';
 
@@ -67,9 +69,12 @@ class _ProductListFormState extends State<ProductListForm> {
       appBar: AppBar(
         title: Text(
           widget.productoAEditar != null
-              ? "Editar Producto"
-              : "Agregar Nuevo Producto",
-          style: const TextStyle(fontWeight: FontWeight.bold),
+              ? AppStrings.tituloFormularioEditar
+              : AppStrings.tituloFormularioAgregar,
+          style: GoogleFonts.montserrat(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         backgroundColor: AppTheme.primaryMint,
         centerTitle: true,
@@ -93,14 +98,22 @@ class _ProductListFormState extends State<ProductListForm> {
                   // Campo Nombre
                   TextFormField(
                     controller: _nombreController,
-                    decoration: const InputDecoration(
-                      hintText: "Nombre Del Producto",
+                    style: GoogleFonts.montserrat(
+                      fontSize: 15,
+                      color: AppTheme.textDark,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: AppStrings.etiquetaNombre,
+                      hintStyle: GoogleFonts.montserrat(
+                        fontSize: 15,
+                        color: AppTheme.textLight,
+                      ),
                       border: InputBorder.none,
                       prefixIcon: Icon(Icons.label_outline),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Ingrese un nombre';
+                        return AppStrings.mensajeErrorNombre;
                       }
                       return null;
                     },
@@ -110,8 +123,16 @@ class _ProductListFormState extends State<ProductListForm> {
                   // Campo Cantidad
                   TextFormField(
                     controller: _cantidadController,
-                    decoration: const InputDecoration(
-                      hintText: "Cantidad",
+                    style: GoogleFonts.montserrat(
+                      fontSize: 15,
+                      color: AppTheme.textDark,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: AppStrings.etiquetaCantidad,
+                      hintStyle: GoogleFonts.montserrat(
+                        fontSize: 15,
+                        color: AppTheme.textLight,
+                      ),
                       border: InputBorder.none,
                       prefixIcon: Icon(Icons.inventory_2_outlined),
                     ),
@@ -120,7 +141,7 @@ class _ProductListFormState extends State<ProductListForm> {
                       if (value == null ||
                           int.tryParse(value) == null ||
                           int.parse(value) <= 0) {
-                        return 'Ingrese una cantidad válida';
+                        return AppStrings.mensajeErrorCantidad;
                       }
                       return null;
                     },
@@ -130,8 +151,16 @@ class _ProductListFormState extends State<ProductListForm> {
                   // Campo Precio
                   TextFormField(
                     controller: _precioController,
-                    decoration: const InputDecoration(
-                      hintText: "Precio",
+                    style: GoogleFonts.montserrat(
+                      fontSize: 15,
+                      color: AppTheme.textDark,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: AppStrings.etiquetaPrecio,
+                      hintStyle: GoogleFonts.montserrat(
+                        fontSize: 15,
+                        color: AppTheme.textLight,
+                      ),
                       border: InputBorder.none,
                       prefixIcon: Icon(Icons.savings_outlined),
                     ),
@@ -142,7 +171,7 @@ class _ProductListFormState extends State<ProductListForm> {
                       if (value == null ||
                           double.tryParse(value) == null ||
                           double.parse(value) <= 0) {
-                        return 'Ingrese un precio válido';
+                        return AppStrings.mensajeErrorPrecio;
                       }
                       return null;
                     },
@@ -161,12 +190,19 @@ class _ProductListFormState extends State<ProductListForm> {
                       children: [
                         //Parte 1: interruptor de promocion
                         SwitchListTile(
-                          title: const Text("Promocion En Segunda Unidad"),
+                          title: Text(
+                            AppStrings.promocionSegundaUnidad,
+                            style: GoogleFonts.montserrat(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.textDark,
+                            ),
+                          ),
                           subtitle: Text(
                             _tienePromocionSegundaUnidad
-                                ? "Descuento activo en la 2da unidad"
-                                : "Sin promociones especiales",
-                            style: TextStyle(
+                                ? AppStrings.tienePromo
+                                : AppStrings.noTienePromo,
+                            style: GoogleFonts.montserrat(
                               fontSize: 12,
                               color: AppTheme.textLight,
                             ),
@@ -182,28 +218,37 @@ class _ProductListFormState extends State<ProductListForm> {
                         ),
                         //Parte 2: El campo (Que solo aparece si el switch da true)
                         if (_tienePromocionSegundaUnidad)
-                          //Creamos un Divider con una linea para separar
-                          const Divider(height: 1, indent: 15, endIndent: 15),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: TextFormField(
-                            controller: _promoController,
-                            decoration: const InputDecoration(
-                              labelText: "De Descuento en la 2da unidad",
-                              hintText: "Ej: 50",
-                              prefixIcon: Icon(Icons.percent, size: 18),
-                              border: OutlineInputBorder(),
+                          Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: TextFormField(
+                              controller: _promoController,
+                              decoration: InputDecoration(
+                                labelText:
+                                    AppStrings.labelDescuentoSegundaUnidad,
+                                labelStyle: GoogleFonts.montserrat(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppTheme.textDark,
+                                ),
+                                hintText: AppStrings.hintDescuentoSegundaUnidad,
+                                hintStyle: GoogleFonts.montserrat(
+                                  fontSize: 13,
+                                  color: AppTheme.textLight,
+                                ),
+                                prefixIcon: Icon(Icons.percent, size: 18),
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (_tienePromocionSegundaUnidad &&
+                                    (value == null || value.isEmpty)) {
+                                  return AppStrings
+                                      .mensajeErrorDescuentoSegundaUnidad;
+                                }
+                                return null;
+                              },
                             ),
-                            keyboardType: TextInputType.number,
-                            validator: (value) {
-                              if (_tienePromocionSegundaUnidad &&
-                                  (value == null || value.isEmpty)) {
-                                return "Indique el porcentaje de descuento";
-                              }
-                              return null;
-                            },
                           ),
-                        ),
                       ],
                     ),
                   ),
@@ -237,8 +282,8 @@ class _ProductListFormState extends State<ProductListForm> {
                   icon: const Icon(Icons.add_shopping_cart, size: 24),
                   label: Text(
                     widget.productoAEditar != null
-                        ? "Editar Producto"
-                        : "Agregar Producto",
+                        ? AppStrings.tituloFormularioEditar
+                        : AppStrings.tituloFormularioAgregar,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

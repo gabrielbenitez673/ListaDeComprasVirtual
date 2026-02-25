@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shopping_list_app/constants/app_strings.dart';
 import 'package:shopping_list_app/models/product.dart';
 import 'package:shopping_list_app/screens/product_list_form.dart';
 import 'package:shopping_list_app/themes/theme.dart';
@@ -111,7 +113,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     //mostrar un snackbar para confirmar la eliminacion
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text("Producto eliminado"),
+        content: Text(AppStrings.mensajeProductoEliminado),
         duration: Duration(seconds: 1),
       ),
     );
@@ -128,15 +130,24 @@ class _ProductListScreenState extends State<ProductListScreen> {
   //pantalla principal de la app
   @override
   Widget build(BuildContext context) {
+    //variables para separar los productos pendientes de los que ya estan en el changuito,
+    //esto nos servira para mostrar secciones diferentes en la lista
+    final pendientes = productList
+        .where((product) => product.isPending)
+        .toList();
+    final enChanguito = productList
+        .where((product) => !product.isPending)
+        .toList();
+
+    //aqui construimos la interfaz de la pantalla principal
     return Scaffold(
       backgroundColor: AppTheme.primaryBlue,
       appBar: AppBar(
         title: Text(
-          "Mi Lista de Compras",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
+          AppStrings.tituloPrincipal,
+          style: GoogleFonts.montserrat(
             fontSize: 24,
-            letterSpacing: 1.2,
+            fontWeight: FontWeight.bold,
           ),
         ),
         backgroundColor: AppTheme.primaryMint,
@@ -147,10 +158,17 @@ class _ProductListScreenState extends State<ProductListScreen> {
       ),
       //aqui consultamos si la lista esta vacia y mostramos un mensaje
       body: productList.isEmpty
-          ? const Center(
-              child: Text(
-                "No hay productos agregados",
-                style: TextStyle(fontSize: 18),
+          ? Center(
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  AppStrings.mensajeListaVacia,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 20,
+                    color: AppTheme.textDark,
+                  ),
+                ),
               ),
             )
           //aqui construimos la lista de productos
@@ -183,6 +201,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
   }
 
+  //Navegamos a la pantalla del formulario para editar un producto, le pasamos el producto a editar y su indice en la lista
   void _abrirFormularioEdicion(Product product, int index) async {
     final Product? productoEditado = await Navigator.push(
       context,
@@ -198,13 +217,14 @@ class _ProductListScreenState extends State<ProductListScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Producto editado exitosamente."),
+          content: Text(AppStrings.mensajeProductoEditado),
           duration: Duration(seconds: 2),
         ),
       );
     }
   }
 
+  //Funcion para mostrar un dialogo de confirmacion antes de eliminar un producto
   void _confirmarEliminacion(int index) {
     showDialog(
       context: context,
@@ -213,6 +233,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
   }
 
+  //Funcion para abrir el formulario de agregar nuevo producto
   void _abrirFormularioNuevo() async {
     final Product? nuevoProducto = await Navigator.push(
       context,
