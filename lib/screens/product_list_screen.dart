@@ -70,7 +70,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
       //declaramos unas variables, para manejar el precio con descuento en la segunda unidad
       double precioUnitario = producto.price;
-      double desc2da = producto.descuentoSegundaUnidad;
+      double desc2da = producto.descuentoSegundaUnidad.clamp(0.0, 100.0);
 
       //verificamos si el producto tiene descuento en la segunda unidad y la cantidad es mayor o igual a 2
       if (desc2da > 0 && cant >= 2) {
@@ -101,7 +101,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
   double _calcularTotalCompra() {
     double subtotal = _calcularSubTotalCompra();
     double descuento = subtotal * (_descuentoPorcentaje / 100);
-    return subtotal - descuento;
+    double resultado = subtotal - descuento;
+
+    //El total no puede ser negativo, si el descuento es mayor al subtotal, el total sera 0
+    return resultado < 0 ? 0.0 : resultado;
   }
 
   //funcion para eliminar un producto de la lista
@@ -187,16 +190,22 @@ class _ProductListScreenState extends State<ProductListScreen> {
             ),
 
       //Aqui ira el total de la compra que se este realizando
-      bottomNavigationBar: CartSummary(
-        subtotal: _calcularSubTotalCompra(),
-        total: _calcularTotalCompra(),
-        onDiscountChanged: (value) {
-          setState(() {
-            _descuentoPorcentaje = double.tryParse(value) ?? 0.0;
-            _guardarDatos(); //Guardamos los datos despues de cambiar el descuento
-          });
-        },
-        onAddProduct: _abrirFormularioNuevo, //Funcion para abrir el formulario
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 10.0),
+          child: CartSummary(
+            subtotal: _calcularSubTotalCompra(),
+            total: _calcularTotalCompra(),
+            onDiscountChanged: (value) {
+              setState(() {
+                _descuentoPorcentaje = double.tryParse(value) ?? 0.0;
+                _guardarDatos(); //Guardamos los datos despues de cambiar el descuento
+              });
+            },
+            onAddProduct:
+                _abrirFormularioNuevo, //Funcion para abrir el formulario
+          ),
+        ),
       ),
     );
   }

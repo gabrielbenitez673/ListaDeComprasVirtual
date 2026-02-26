@@ -10,6 +10,9 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: Scaffold(body: ProductListScreen()));
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(body: ProductListScreen()),
+    );
   }
 }
