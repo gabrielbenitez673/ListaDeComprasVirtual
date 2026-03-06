@@ -8,6 +8,8 @@ import 'package:shopping_list_app/themes/theme.dart';
 import 'package:shopping_list_app/widgets/delete_dialog.dart';
 import 'package:shopping_list_app/widgets/cart_summary.dart';
 import 'package:shopping_list_app/widgets/product_card_item.dart';
+import 'package:shopping_list_app/widgets/slidingTaskPanel.dart'; // Importamos el nuevo widget
+import 'package:shopping_list_app/widgets/sidebar/main_drawer.dart'; // Importamos el drawer
 //Importaremos los paquetes nencesarios para crear las funciones de guardado de datos
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,6 +35,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
     await prefs.setString("my_shopping_list", encodedData);
     await prefs.setDouble("global_discount", _descuentoPorcentaje);
+    
+    // === APLICACIÓN DEL PANEL DESLIZABLE: GUARDADO ===
+    // Convertimos la lista de compras rápidas en JSON de la misma
+    // forma que los productos, asegurándonos de que no se pierdan al cerrar la app.
+    final String encodedTaskPanel = json.encode(_taskPanelPurchases);
+    await prefs.setString("sliding_task_panel_purchases", encodedTaskPanel);
   }
 
   //Funcion de carga de datos
@@ -54,7 +62,25 @@ class _ProductListScreenState extends State<ProductListScreen> {
         _descuentoPorcentaje = savedDiscount;
       });
     }
+
+    // === APLICACIÓN DEL PANEL DESLIZABLE: CARGA ===
+    // Intentamos recuperar la lista de pendientes rápidos. Si existe, la decodificamos
+    // y la asignamos a la variable de estado para reflejarla en la UI al abrir la app.
+    final String? savedTaskPanel = prefs.getString("sliding_task_panel_purchases");
+    if (savedTaskPanel != null) {
+      final List<dynamic> decodedTaskPanel = json.decode(savedTaskPanel);
+      setState(() {
+        _taskPanelPurchases = List<String>.from(decodedTaskPanel);
+      });
+    }
   }
+
+  // === VARIABLES DE ESTADO DEL PANEL DESLIZABLE ===
+  // _isPanelOpen determina visualmente si el panel inferior se muestra o no.
+  // _taskPanelPurchases guarda en memoria los elementos agregados.
+  bool _isPanelOpen = false;
+  List<String> _taskPanelPurchases = [];
+
 
   //creamos una variable para almacenar el descuento
   double _descuentoPorcentaje = 0.0;
@@ -145,6 +171,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     //aqui construimos la interfaz de la pantalla principal
     return Scaffold(
       backgroundColor: AppTheme.primaryBlue,
+      drawer: const MainDrawer(),
       appBar: AppBar(
         title: Text(
           AppStrings.tituloPrincipal,
@@ -158,52 +185,99 @@ class _ProductListScreenState extends State<ProductListScreen> {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(25)),
         ),
-      ),
-      //aqui consultamos si la lista esta vacia y mostramos un mensaje
-      body: productList.isEmpty
-          ? Center(
-              child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  AppStrings.mensajeListaVacia,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 20,
-                    color: AppTheme.textDark,
-                  ),
-                ),
-              ),
-            )
-          //aqui construimos la lista de productos
-          : ListView.builder(
-              itemCount: productList.length,
-              itemBuilder: (context, index) {
-                final product = productList[index];
-
-                //Conectamos el widget ProductCardItem
-                return ProductCardItem(
-                  product: product,
-                  onEdit: () => _abrirFormularioEdicion(product, index),
-                  onDelete: () => _confirmarEliminacion(index),
-                );
-              },
-            ),
-
-      //Aqui ira el total de la compra que se este realizando
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 10.0),
-          child: CartSummary(
-            subtotal: _calcularSubTotalCompra(),
-            total: _calcularTotalCompra(),
-            onDiscountChanged: (value) {
+        actions: [
+          // Botón en la AppBar para abrir/cerrar el panel de compras rápidas.
+          // Cambia su ícono (X o lista) dependiendo del estado de _isPanelOpen.
+          IconButton(
+            icon: Icon(_isPanelOpen ? Icons.close : Icons.list_alt),
+            onPressed: () {
               setState(() {
-                _descuentoPorcentaje = double.tryParse(value) ?? 0.0;
-                _guardarDatos(); //Guardamos los datos despues de cambiar el descuento
+                _isPanelOpen = !_isPanelOpen;
               });
             },
-            onAddProduct:
-                _abrirFormularioNuevo, //Funcion para abrir el formulario
+            tooltip: 'Lista de pendientes rápidos',
+          )
+        ],
+      ),
+      // Envolvemos el body actual en un Stack para superponer el panel deslizable
+      body: Stack(
+        children: [
+          // aqui consultamos si la lista esta vacia y mostramos un mensaje
+          productList.isEmpty
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      AppStrings.mensajeListaVacia,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 20,
+                        color: AppTheme.textDark,
+                      ),
+                    ),
+                  ),
+                )
+              //aqui construimos la lista de productos
+              : ListView.builder(
+                  itemCount: productList.length,
+                  itemBuilder: (context, index) {
+                    final product = productList[index];
+
+                    //Conectamos el widget ProductCardItem
+                    return ProductCardItem(
+                      product: product,
+                      onEdit: () => _abrirFormularioEdicion(product, index),
+                      onDelete: () => _confirmarEliminacion(index),
+                    );
+                  },
+                ),
+
+          // === WIDGET DEL PANEL DESLIZABLE ===
+          // Usamos un Align con 'Alignment.bottomCenter' para que, independientemente
+          // de lo que ocupe la pantalla, el panel provenga siempre desde abajo.
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Slidingtaskpanel(
+              isOpen: _isPanelOpen, // Estado local inyectado
+              purchases: _taskPanelPurchases, // Datos locales inyectados
+              onClear: () {
+                // Función flecha pasada como propiedad: Actualiza estado local y guarda.
+                setState(() {
+                  _taskPanelPurchases.clear();
+                  _guardarDatos();
+                });
+              },
+              onAddPurchase: (newItem) {
+                // Función flecha pasada como propiedad: Añade nuevo item al estado y persiste datos.
+                setState(() {
+                  _taskPanelPurchases.add(newItem);
+                  _guardarDatos();
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+
+      // Aqui ira el total de la compra que se este realizando
+      // Usamos SafeArea para proteger el widget CartSummary de las barras de navegacion del OS.
+      // Le agregamos un Container de fondo (del mismo color de la app) para que se vea integrado y no transparente.
+      bottomNavigationBar: Container(
+        color: AppTheme.primaryBlue, // Color de fondo para integrarlo con la pantalla
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10.0, left: 10.0, right: 10.0),
+            child: CartSummary(
+              subtotal: _calcularSubTotalCompra(),
+              total: _calcularTotalCompra(),
+              onDiscountChanged: (value) {
+                setState(() {
+                  _descuentoPorcentaje = double.tryParse(value) ?? 0.0;
+                  _guardarDatos(); // Guardamos los datos despues de cambiar el descuento
+                });
+              },
+              onAddProduct: _abrirFormularioNuevo, // Funcion para abrir el formulario
+            ),
           ),
         ),
       ),

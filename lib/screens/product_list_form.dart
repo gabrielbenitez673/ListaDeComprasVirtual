@@ -262,29 +262,24 @@ class _ProductListFormState extends State<ProductListForm> {
       // Usamos bottomNavigationBar para que el botón esté siempre fijo abajo
       bottomNavigationBar: MediaQuery.of(context).viewInsets.bottom != 0.0
           ? const SizedBox.shrink() // Si el teclado está abierto, ocultamos el panel para liberar espacio visual
-          : Container(
-              margin: EdgeInsets.only(bottom: 10, left: 10, right: 10),
-              padding: const EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 20,
-                bottom: 20,
-              ),
-              decoration: BoxDecoration(
-                color: AppTheme
-                    .background, // Fondo blanco: unifica el estilo con el panel de totales de la pantalla principal
-                // Bordes redondeados arriba para dar sensación de "panel deslizable"
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: SafeArea(
-                // SafeArea: Protege el botón en dispositivos sin marcos (como iPhone o nuevos Android)
+          : SafeArea(
+              // SafeArea: Protege TODO el contenedor del botón en dispositivos sin marcos (como iPhone o nuevos Android)
+              // asegurando que no quede debajo de la barra de navegación del sistema operativo.
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppTheme.background, // Fondo blanco: unifica el estilo con el panel de totales de la pantalla principal
+                  // Bordes redondeados para dar sensación de "panel flotante/deslizable"
+                  borderRadius: BorderRadius.circular(30),
+                ),
                 child: ElevatedButton.icon(
                   icon: const Icon(Icons.add_shopping_cart, size: 24),
                   label: Text(
                     widget.productoAEditar != null
                         ? AppStrings.tituloFormularioEditar
                         : AppStrings.tituloFormularioAgregar,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
@@ -293,18 +288,28 @@ class _ProductListFormState extends State<ProductListForm> {
                   onPressed: () {
                     // 1. Primero validamos el formulario
                     if (_formKey.currentState!.validate()) {
+                      // Parsearemos el dato de descuento para poder limpiar el dato si se pasa de 100 o si es negativo, ademas de convertirlo a decimal para el calculo del total
+                      double descuentoIngresado =
+                          double.tryParse(_promoController.text) ?? 0.0;
+
+                      // Ahora aplicamos un clamp para asegurarnos que el descuento esté entre 0 y 100
+                      double descuentoFinal = descuentoIngresado.clamp(
+                        0.0,
+                        100.0,
+                      );
+
                       // 2. Creamos UN SOLO objeto producto que servirá para ambos casos (Nuevo o Editar)
                       final productoAEnviar = Product(
                         // CLAVE: Si productoAEditar existe, usamos su ID original. Si no, creamos uno nuevo.
-                        id:
-                            widget.productoAEditar?.id ??
+                        id: widget.productoAEditar?.id ??
                             DateTime.now().toString(),
                         title: _nombreController.text,
                         quantity: _cantidadController.text,
                         price: double.tryParse(_precioController.text) ?? 0.0,
                         // Solo guardamos el descuento si el interruptor está activo
+                        // Si el descuento es mayor a 100, lo limitamos a 100. Si es negativo, lo subimos a 0.
                         descuentoSegundaUnidad: _tienePromocionSegundaUnidad
-                            ? (double.tryParse(_promoController.text) ?? 0.0)
+                            ? descuentoFinal
                             : 0.0,
                       );
 
@@ -313,15 +318,13 @@ class _ProductListFormState extends State<ProductListForm> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        AppTheme.primaryMint, //Color de fondo del boton
+                    backgroundColor: AppTheme.primaryMint, // Color de fondo del boton
                     foregroundColor: AppTheme.white,
                     minimumSize: const Size(
                       double.infinity,
                       55,
                     ), // double.infinity hace que el botón ocupe todo el ancho del panel
-                    elevation:
-                        5, // Quitamos la sombra propia del botón para que se vea plano y moderno sobre el panel blanco
+                    elevation: 5, // Quitamos la sombra propia del botón para que se vea plano y moderno sobre el panel blanco
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class BubbleWidgetPending extends StatelessWidget {
-  const BubbleWidgetPending({super.key});
+class HistoryListItem extends StatelessWidget {
+  const HistoryListItem({super.key});
 
   @override
   Widget build(BuildContext context) {

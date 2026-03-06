@@ -49,4 +49,9 @@ class AppStrings {
       "Por favor ingresa una cantidad válida para el producto";
   static const String mensajeErrorDescuentoSegundaUnidad =
       "Por favor ingresa un descuento válido entre 0 y 100";
+
+  //Sidebar textos
+  static const String tituloSidebar = "Historial de Compras Anteriores";
+  static const String mensajeSidebarVacio =
+      "No hay compras anteriores para mostrar. ¡Realiza tu primera compra para llenar el historial!";
 }
